@@ -1,9 +1,8 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/HomeView.vue';
-import Rumah from '../views/rumah/index.vue'; 
-import addRumah from '../views/rumah/form.vue';
-
+import HomeView from '@/views/HomeView.vue';
+import Rumah from '@/views/rumah/index.vue'; 
+import Penghuni from "@/views/penghuni/index.vue"
 const routes = [
   {
     path: '/',
@@ -16,10 +15,11 @@ const routes = [
     component: Rumah
   },
   {
-    path: '/rumah/add',
-    name: 'Tambah Rumah',
-    component: addRumah
-  }
+    path: '/penghuni',
+    name: 'penghuni',
+    component: Penghuni
+  },
+  
 ];
 
 const router = createRouter({

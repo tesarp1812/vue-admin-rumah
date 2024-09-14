@@ -1,0 +1,180 @@
+<template>
+    <AppNavbar />
+    <div class="content">
+        <h1 class="title">Data Penghuni</h1>
+        <button @click="loadData" class="load-button">Load Data</button>
+        
+        <!-- Show loading spinner or message -->
+        <div v-if="store.isLoading" class="status-message">Loading...</div>
+
+        <!-- Show error message -->
+        <div v-if="store.error" class="status-message error">{{ store.error }}</div>
+
+        <!-- Display table if there's data to show -->
+        <table v-if="!store.isLoading && !store.error && penghuni.length" class="data-table">
+            <thead>
+                <tr>
+                    <th>Nama Lengkap</th>
+                    <th>Status Penghuni</th>
+                    <th>Nomor Telepon</th>
+                    <th>Status Menikah</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="penghuniItem in penghuni" :key="penghuniItem.id">
+                    <td>{{ penghuniItem.Nama_Lengkap }}</td>
+                    <td>{{ penghuniItem.Status_Penghuni }}</td>
+                    <td>{{ penghuniItem.Nomor_Telepon }}</td>
+                    <td>{{ penghuniItem.Status_Menikah }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Pagination controls -->
+        <div v-if="!store.isLoading && penghuni.length" class="pagination">
+            <button @click="changePage(store.page - 1)" :disabled="store.page <= 1">Previous</button>
+            <span>Page {{ store.page }} of {{ totalPages }}</span>
+            <button @click="changePage(store.page + 1)" :disabled="store.page >= totalPages">Next</button>
+        </div>
+    </div>
+</template>
+
+<script>
+import AppNavbar from '@/components/AppNavbar.vue';
+import { usePenghuniStore } from '@/state/pinia/penghuni'; // Adjust path to your store
+import { computed, onMounted } from 'vue';
+
+export default {
+    name: 'PenghuniPage',
+    components: {
+        AppNavbar
+    },
+    setup() {
+        const store = usePenghuniStore();
+        const penghuni = computed(() => store.penghuni);
+        const totalPages = computed(() => Math.ceil(store.totalpenghuni / store.perPage));
+
+        const loadData = async () => {
+            await store.fetchData(1);
+        };
+
+        const changePage = async (newPage) => {
+            await store.changePage(newPage);
+        };
+
+        onMounted(() => {
+            loadData();
+        });
+
+        return {
+            store,
+            penghuni,
+            totalPages,
+            loadData,
+            changePage
+        };
+    }
+}
+</script>
+
+<style>
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 2em;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.load-button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.load-button:hover {
+    background-color: #0056b3;
+}
+
+.status-message {
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+.status-message.error {
+    color: #dc3545;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.data-table th {
+    background-color: #007bff;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.data-table th:hover {
+    background-color: #0056b3;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.data-table td {
+    color: #333;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+    margin: 0 5px;
+}
+
+.pagination button:hover {
+    background-color: #0056b3;
+}
+
+.pagination button:disabled {
+    background-color: #c0c0c0;
+    cursor: not-allowed;
+}
+</style>
