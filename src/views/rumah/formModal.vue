@@ -1,22 +1,38 @@
 <template>
-  <div v-if="isVisible" class="modal-overlay">
+  <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
       <h1>Tambah Rumah</h1>
       <form @submit.prevent="submitForm">
         <div>
           <label for="no_rumah">Nomor Rumah:</label>
-          <input v-model="form.no_rumah" type="text" id="no_rumah" required />
-        </div>
-        <div>
-          <label for="status_rumah">Status Rumah:</label>
-          <select v-model="form.Status_Rumah" id="status_rumah" required>
-            <option value="Dihuni">Dihuni</option>
-            <option value="Kosong">Kosong</option>
+          <select v-model="form.rumah_id" id="no_rumah" required>
+            <option v-for="house in houseNumbers" :key="house.id" :value="house.id">
+              {{ house.no_rumah }}
+            </option>
           </select>
         </div>
         <div>
-          <label for="penghuni_id">Penghuni ID:</label>
-          <input v-model="form.penghuni_id" type="text" id="penghuni_id" required />
+          <label for="penghuni_id">Penghuni:</label>
+          <select v-model="form.warga_id" id="penghuni_id" required>
+            <option v-for="resident in residents" :key="resident.id" :value="resident.id">
+              {{ resident.nama }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label for="status_penghuni">Status Penghuni:</label>
+          <select v-model="form.Status_Penghuni" id="status_penghuni" required>
+            <option value="Kontrak">Kontrak</option>
+            <option value="Tetap">Tetap</option>
+          </select>
+        </div>
+        <div>
+          <label for="start_date">Tanggal Mulai:</label>
+          <input v-model="form.start_date" type="date" id="start_date" required />
+        </div>
+        <div>
+          <label for="end_date">Tanggal Akhir:</label>
+          <input v-model="form.end_date" type="date" id="end_date" />
         </div>
         <button type="submit">Submit</button>
         <button type="button" @click="closeModal">Cancel</button>
@@ -27,8 +43,8 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useRumahStore } from '@/state/pinia/rumah'; // Pastikan jalur import benar
+import { ref, watch } from 'vue';
+import { useRumahStore } from '@/state/pinia/rumah';
 
 export default {
   name: 'formModal',
@@ -41,24 +57,40 @@ export default {
   emits: ['close'],
   setup(props, { emit }) {
     const store = useRumahStore();
-
     const form = ref({
-      no_rumah: '',
-      Status_Rumah: 'Dihuni',
-      penghuni_id: '',
+      warga_id: '',
+      rumah_id: '',
+      Status_Penghuni: 'Kontrak',
+      start_date: '',
+      end_date: ''
     });
-
     const errorMessage = ref('');
+    const houseNumbers = ref([]);
+    const residents = ref([]);
+
+    const fetchOptions = async () => {
+      try {
+        await store.fetchHouseNumbers();
+        await store.fetchResidents();
+        houseNumbers.value = store.houseNumbers;
+        residents.value = store.residents;
+      } catch (error) {
+        errorMessage.value = 'Terjadi kesalahan saat memuat data';
+      }
+    };
 
     const submitForm = async () => {
       try {
-        await store.addRumah(form.value);
+        const formData = { ...form.value, end_date: form.value.end_date || null };
+        await store.addPenghuni(formData);
         emit('close');
-        alert('Rumah berhasil ditambahkan');
+        alert('Penghuni berhasil ditambahkan');
         form.value = {
-          no_rumah: '',
+          rumah_id: '',
           Status_Rumah: 'Dihuni',
-          penghuni_id: '',
+          warga_id: '',
+          start_date: '',
+          end_date: ''
         };
       } catch (error) {
         errorMessage.value = 'Terjadi kesalahan saat menambahkan rumah';
@@ -69,11 +101,19 @@ export default {
       emit('close');
     };
 
+    watch(() => props.isVisible, (newVal) => {
+      if (newVal) {
+        fetchOptions();
+      }
+    });
+
     return {
       form,
       submitForm,
       closeModal,
-      errorMessage
+      errorMessage,
+      houseNumbers,
+      residents,
     };
   }
 };
@@ -180,10 +220,10 @@ export default {
     transform: translateY(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
   }
 }
 </style>
-

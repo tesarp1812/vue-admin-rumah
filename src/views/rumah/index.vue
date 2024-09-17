@@ -12,18 +12,23 @@
           <tr>
             <th @click="sortBy('no_rumah')">Nomer Rumah</th>
             <th>Status Rumah</th>
-            <th>Penghuni</th>
-            <th>Created At</th>
-            <th>Updated At</th>
+            <th>Nama Penghuni</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in sortedItems" :key="item.id">
             <td>{{ item.no_rumah }}</td>
-            <td>{{ item.Status_Rumah }}</td>
-            <td>{{ item.penghuni_id }}</td>
-            <td>{{ formatDate(item.created_at) }}</td>
-            <td>{{ formatDate(item.updated_at) }}</td>
+            <td>
+              <span v-if="item.penghuni.length > 0">
+                {{ item.penghuni[0].Status_Penghuni }}
+              </span>
+            </td>
+            <td>
+              <span v-for="penghuni in item.penghuni" :key="penghuni.id">
+                {{ penghuni.warga?.nama || 'Unknown' }}
+                <span v-if="penghuni !== item.penghuni[item.penghuni.length - 1]">, </span>
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -47,21 +52,24 @@ export default {
   name: 'RumahPage',
   components: {
     AppNavbar,
-    formModal // Register komponen modal
+    formModal // Register modal component
   },
   setup() {
     const store = useRumahStore();
     const showModal = ref(false); 
+
     const loadData = async () => {
-      await store.fetchData(1); 
+      await store.fetchData(); 
     };
+
     const loadMore = async () => {
       await store.loadMore();
     };
+
     const handleScroll = () => {
       const scrollable = document.documentElement.scrollHeight;
       const scrolled = window.innerHeight + window.scrollY;
-      if (scrolled >= scrollable - 100) { // 100 px dari bawah halaman
+      if (scrolled >= scrollable - 100) { // 100 px from the bottom of the page
         loadMore();
       }
     };
@@ -82,10 +90,9 @@ export default {
         sortOrder.value = 'asc';
       }
     };
-                
 
     const sortedItems = computed(() => {
-      return [...store.items].sort((a, b) => {
+      return [...store.mergedData].sort((a, b) => {
         let modifier = sortOrder.value === 'asc' ? 1 : -1;
         if (a[sortKey.value] < b[sortKey.value]) return -1 * modifier;
         if (a[sortKey.value] > b[sortKey.value]) return 1 * modifier;
