@@ -1,7 +1,7 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
-      <h1>Tambah Rumah</h1>
+      <h1>Tambah Penghuni</h1>
       <form @submit.prevent="submitForm">
         <div>
           <label for="no_rumah">Nomor Rumah:</label>

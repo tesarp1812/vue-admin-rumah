@@ -2,15 +2,11 @@
     <AppNavbar />
     <div class="content">
         <h1 class="title">Data Penghuni</h1>
-        <button @click="loadData" class="load-button">Load Data</button>
+        <button @click="showFormRumah = true" class="load-button">Tambah Data Rumah</button>
         
-        <!-- Show loading spinner or message -->
         <div v-if="store.isLoading" class="status-message">Loading...</div>
-
-        <!-- Show error message -->
         <div v-if="store.error" class="status-message error">{{ store.error }}</div>
 
-        <!-- Display table if there's data to show -->
         <table v-if="!store.isLoading && !store.error && penghuni.length" class="data-table">
             <thead>
                 <tr>
@@ -22,40 +18,49 @@
             </thead>
             <tbody>
                 <tr v-for="penghuniItem in penghuni" :key="penghuniItem.id">
-                    <td>{{ penghuniItem.Nama_Lengkap }}</td>
+                    <td>{{ penghuniItem.warga?.nama }}</td>
                     <td>{{ penghuniItem.Status_Penghuni }}</td>
-                    <td>{{ penghuniItem.Nomor_Telepon }}</td>
-                    <td>{{ penghuniItem.Status_Menikah }}</td>
+                    <td>{{ penghuniItem.warga?.Nomor_Telepon }}</td>
+                    <td>{{ penghuniItem.warga?.Status_Menikah }}</td>
                 </tr>
             </tbody>
         </table>
 
-        <!-- Pagination controls -->
         <div v-if="!store.isLoading && penghuni.length" class="pagination">
             <button @click="changePage(store.page - 1)" :disabled="store.page <= 1">Previous</button>
             <span>Page {{ store.page }} of {{ totalPages }}</span>
             <button @click="changePage(store.page + 1)" :disabled="store.page >= totalPages">Next</button>
         </div>
+
+        <!-- Form Component -->
+        <formRumah :isVisible="showFormRumah" @close="showFormRumah = false" />
     </div>
 </template>
 
 <script>
 import AppNavbar from '@/components/AppNavbar.vue';
+import formRumah from './formRumah.vue';
 import { usePenghuniStore } from '@/state/pinia/penghuni'; // Adjust path to your store
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 export default {
     name: 'PenghuniPage',
     components: {
-        AppNavbar
+        AppNavbar,
+        formRumah
     },
     setup() {
         const store = usePenghuniStore();
         const penghuni = computed(() => store.penghuni);
         const totalPages = computed(() => Math.ceil(store.totalpenghuni / store.perPage));
+        const showFormRumah = ref(false);
 
         const loadData = async () => {
             await store.fetchData(1);
+        };
+
+        const loadWarga = async() => {
+            await store.fetchWarga(1);
         };
 
         const changePage = async (newPage) => {
@@ -64,6 +69,7 @@ export default {
 
         onMounted(() => {
             loadData();
+            loadWarga();
         });
 
         return {
@@ -71,7 +77,8 @@ export default {
             penghuni,
             totalPages,
             loadData,
-            changePage
+            changePage,
+            showFormRumah
         };
     }
 }

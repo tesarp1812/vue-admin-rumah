@@ -3,8 +3,8 @@
     <AppNavbar />
     <div class="content">
       <h1 class="title">Data Rumah</h1>
-      <button @click="loadData" class="load-button">Load Data</button>
-      <button @click="showModal = true" class="add-button">Tambah Rumah</button>
+      <!-- <button @click="loadData" class="load-button">Load Data</button> -->
+      <button @click="showModal = true" class="add-button">Tambah Penghuni</button>
       <p v-if="store.isLoading" class="status-message">Loading...</p>
       <p v-if="store.error" class="status-message error">Error: {{ store.error }}</p>
       <table v-if="!store.isLoading && !store.error" class="data-table">
