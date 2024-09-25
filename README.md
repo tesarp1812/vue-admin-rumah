@@ -98,6 +98,3 @@ Jika Anda ingin berkontribusi pada proyek ini, silakan lakukan fork dan buat pul
 
 Proyek ini dilisensikan di bawah MIT License. Lihat berkas [LICENSE](LICENSE) untuk informasi lebih lanjut.
 
----
-
-Silakan sesuaikan dengan detail yang diperlukan atau tambahkan informasi tambahan yang relevan dengan proyek Anda!
