@@ -6,7 +6,7 @@
         <li class="navbar-item"><router-link to="/" class="navbar-link">Home</router-link></li>
         <li class="navbar-item"><router-link to="/rumah" class="navbar-link">Admin Rumah</router-link></li>
         <li class="navbar-item"><router-link to="/penghuni" class="navbar-link">Daftar Penghuni</router-link></li>
-        <li class="navbar-item"><router-link to="/contact" class="navbar-link">Contact</router-link></li>
+        <li class="navbar-item"><router-link to="/Pembayaran" class="navbar-link">Pembayaran</router-link></li>
       </ul>
       <button class="navbar-toggle" @click="toggleMenu">
         <span class="navbar-toggle-icon"></span>
@@ -16,9 +16,9 @@
     </div>
     <ul class="navbar-menu-mobile" v-if="menuOpen">
       <li class="navbar-item"><router-link to="/" class="navbar-link" @click="closeMenu">Home</router-link></li>
-      <li class="navbar-item"><router-link to="/about" class="navbar-link" @click="closeMenu">About</router-link></li>
-      <li class="navbar-item"><router-link to="/services" class="navbar-link" @click="closeMenu">Services</router-link></li>
-      <li class="navbar-item"><router-link to="/contact" class="navbar-link" @click="closeMenu">Contact</router-link></li>
+      <li class="navbar-item"><router-link to="/rumah" class="navbar-link" @click="closeMenu">Admin Rumah</router-link></li>
+      <li class="navbar-item"><router-link to="/penghuni" class="navbar-link" @click="closeMenu">Daftar Penghuni</router-link></li>
+      <li class="navbar-item"><router-link to="/Pembayaran" class="navbar-link" @click="closeMenu">Pembayaran</router-link></li>
     </ul>
   </nav>
 </template>

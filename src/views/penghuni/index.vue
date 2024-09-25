@@ -1,12 +1,14 @@
 <template>
     <AppNavbar />
     <div class="content">
-        <h1 class="title">Data Penghuni</h1>
-        <button @click="showFormRumah = true" class="load-button">Tambah Data Rumah</button>
+        <h1 class="title">Data Warga</h1>
+        <button @click="showFormRumah = true" class="load-button">Tambah Data Warga</button>
         
+        <!-- Loading and Error Messages -->
         <div v-if="store.isLoading" class="status-message">Loading...</div>
         <div v-if="store.error" class="status-message error">{{ store.error }}</div>
 
+        <!-- Data Table -->
         <table v-if="!store.isLoading && !store.error && penghuni.length" class="data-table">
             <thead>
                 <tr>
@@ -26,6 +28,7 @@
             </tbody>
         </table>
 
+        <!-- Pagination Controls -->
         <div v-if="!store.isLoading && penghuni.length" class="pagination">
             <button @click="changePage(store.page - 1)" :disabled="store.page <= 1">Previous</button>
             <span>Page {{ store.page }} of {{ totalPages }}</span>
@@ -55,28 +58,32 @@ export default {
         const totalPages = computed(() => Math.ceil(store.totalpenghuni / store.perPage));
         const showFormRumah = ref(false);
 
-        const loadData = async () => {
-            await store.fetchData(1);
-        };
-
-        const loadWarga = async() => {
-            await store.fetchWarga(1);
-        };
-
-        const changePage = async (newPage) => {
-            await store.changePage(newPage);
-        };
-
+        // Fetch initial data when component is mounted
         onMounted(() => {
             loadData();
             loadWarga();
         });
 
+        // Load penghuni data
+        const loadData = async () => {
+            await store.fetchData(1);
+        };
+
+        // Load warga data
+        const loadWarga = async () => {
+            await store.fetchWarga();
+        };
+
+        // Change the current page
+        const changePage = async (newPage) => {
+            if (newPage < 1 || newPage > totalPages.value) return;
+            await store.changePage(newPage);
+        };
+
         return {
             store,
             penghuni,
             totalPages,
-            loadData,
             changePage,
             showFormRumah
         };
@@ -84,7 +91,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .content {
     max-width: 1200px;
     margin: 0 auto;

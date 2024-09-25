@@ -1,25 +1,25 @@
 <template>
-  <div v-if="isVisible" class="modal">
+  <div v-if="isVisible" class="modal-overlay" @click.self="closeModal">
     <div class="modal-content">
+      <h1>Tambah Warga</h1>
       <form @submit.prevent="submitForm">
         <div>
-          <label for="name">Nama :</label>
-          <input type="text" v-model="form.name" id="name" />
+          <label for="nama">Nama:</label>
+          <input type="text" v-model="form.nama" id="nama" required />
         </div>
         <div>
-          <label for="KTP">KTP :</label>
-          <input type="text" v-model="form.name" id="name" />
+          <label for="ktp">Foto KTP:</label>
+          <!-- <input type="file" @change="handleFileUpload" id="ktp" required /> -->
         </div>
         <div>
-          <label for="Nomer Telepon">Nomer Telepon :</label>
-          <input type="number" v-model="form.name" id="name" />
+          <label for="nomorTelepon">Nomor Telepon:</label>
+          <input type="tel" v-model="form.Nomor_Telepon" id="nomorTelepon" required />
         </div>
         <div>
-          <label for="name">Status Menikah :</label>
-          <select name="" id="">
-            <option value=""></option>
-            <option value="">Sudah Menikah</option>
-            <option value="">Belum Menikah</option>
+          <label for="statusMenikah">Status Menikah:</label>
+          <select v-model="form.Status_Menikah" id="statusMenikah" required>
+            <option value="Ya">Sudah Menikah</option>
+            <option value="Tidak">Belum Menikah</option>
           </select>
         </div>
         <button type="submit">Submit</button>
@@ -31,33 +31,78 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { usePenghuniStore } from '@/state/pinia/penghuni'; // Sesuaikan dengan path yang benar
+
 export default {
   name: 'FormRumah',
   props: {
     isVisible: {
       type: Boolean,
-      default: false
-    }
+      required: true,
+    },
   },
-  data() {
-    return {
-      form: {
-        name: ''
+  emits: ['close'],
+  setup(props, { emit }) {
+    const store = usePenghuniStore();
+    const form = ref({
+      nama: '',
+      Nomor_Telepon: '',
+      Status_Menikah: '',
+      Foto_KTP: null,
+    });
+    const errorMessage = ref('');
+
+    // const handleFileUpload = (event) => {
+    //   form.value.Foto_KTP = event.target.files[0];
+    // };
+
+    const submitForm = async () => {
+      const formData = new FormData();
+      formData.append('nama', form.value.nama);
+      formData.append('Nomor_Telepon', form.value.Nomor_Telepon);
+      formData.append('Status_Menikah', form.value.Status_Menikah);
+      if (form.value.Foto_KTP) {
+        formData.append('Foto_KTP', form.value.Foto_KTP);
+      }
+
+      try {
+        await store.addWarga(formData); // Ganti dengan action yang sesuai
+        emit('close');
+        form.value = {
+          nama: '',
+          Nomor_Telepon: '',
+          Status_Menikah: '',
+          Foto_KTP: null,
+        };
+      } catch (error) {
+        errorMessage.value = error.message;
+        form.value = {
+          nama: '',
+          Nomor_Telepon: '',
+          Status_Menikah: '',
+          Foto_KTP: null,
+        };
       }
     };
+
+    const closeModal = () => {
+      emit('close');
+    };
+
+    return {
+      form,
+      // handleFileUpload,
+      submitForm,
+      closeModal,
+      errorMessage,
+    };
   },
-  methods: {
-    submitForm() {
-      console.log('Form submitted:', this.form);
-      // You can emit an event to notify the parent to refresh data
-      this.$emit('close'); // Close the modal after submission
-    }
-  }
-}
+};
 </script>
 
 <style scoped>
-.modal {
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -68,22 +113,6 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  /* Could be more or less, depending on screen size */
-}
-
-.modal-overlay.fade-out {
-  opacity: 0;
 }
 
 .modal-content {
@@ -93,7 +122,6 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-width: 500px;
   width: 90%;
-  animation: slide-in 0.3s ease;
 }
 
 .modal-content h1 {
@@ -160,17 +188,5 @@ export default {
   margin-top: 10px;
   color: #dc3545;
   font-size: 0.875em;
-}
-
-@keyframes slide-in {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
 </style>

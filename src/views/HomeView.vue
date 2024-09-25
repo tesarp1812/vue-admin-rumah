@@ -2,10 +2,10 @@
   <AppNavbar />
   <div class="home-view">
     <h1 class="title">Dashboard</h1>
-    <p class="message">{{ store.message }}</p>
+    <!-- <p class="message">{{ store.message }}</p>
     <ul class="item-list">
       <li v-for="item in store.items" :key="item" class="item">{{ item }}</li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 
